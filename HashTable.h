@@ -38,20 +38,6 @@ typedef struct {
 } HashTable;
 
 /**
- * @brief Structure for a hash table iterator.
- *
- * This structure allows iteration over the entries of a hash table.
- */
-typedef struct {
-    const void* key;  /**< Pointer to the current key */
-    void* value;      /**< Pointer to the current value */
-
-    // PRIVATE fields -> Don't use these fields directly.
-    HashTable *_table; /**<  **PRIVATE field Don't use** Reference to the hash table being iterated */
-    size_t _index;    /**< **PRIVATE field Don't use** Current index into the hash table entries */
-} HashTableIterator;
-
-/**
  * @brief Creates a new hash table.
  *
  * @param key_size Size of the key.
