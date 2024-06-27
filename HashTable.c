@@ -1,5 +1,78 @@
 #include "HashTable.h"
 #include <stdlib.h>
+#include <memory.h>
+
+static bool HashExpand(HashTable *table){
+    size_t new_capacity = table->capacity * 2;
+    if (new_capacity < table->capacity)
+        return false;
+
+    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry));
+    if (new_entries == NULL)
+        return false;
+
+    for (size_t i = 0; i < table->capacity; i++) {
+        HashEntry *entry = table->entries[i];
+        if (entry->key != NULL) {
+            ht_set_entry(new_entries, new_capacity, entry->key,
+                         entry->value, NULL);
+        }
+    }
+
+    // Free old entries array and update this table's details.
+    free(table->entries);
+    table->entries = new_entries;
+    table->capacity = new_capacity;
+    return true;
+}
+
+/**
+ * @brief Default hash function to calculate the index for a given key.
+ *
+ * @param key Pointer to the key.
+ * @param key_size Size of the key.
+ * @return Hash value.
+ */
+static unsigned int default_hash_function(const void *key, size_t key_size) {
+    const unsigned char *ptr = key;
+    unsigned long int value = 0;
+    for (size_t i = 0; i < key_size; ++i) {
+        value = value * 37 + ptr[i];
+    }
+    return value % INITIAL_TABLE_SIZE;
+}
+
+/**
+ * @brief Default key comparison function.
+ *
+ * @param key1 Pointer to the first key.
+ * @param key2 Pointer to the second key.
+ * @param key_size Size of the keys.
+ * @return Comparison result.
+ */
+static int default_key_compare(const void *key1, const void *key2, size_t key_size) {
+    return memcmp(key1, key2, key_size);
+}
+
+/**
+ * @brief Creates a new hash entry.
+ *
+ * @param key Pointer to the key.
+ * @param value Pointer to the value.
+ * @param key_size Size of the key.
+ * @param value_size Size of the value.
+ * @return Pointer to the created hash entry.
+ */
+static HashEntry* create_entry(const void *key, const void *value, size_t key_size, size_t value_size) {
+    HashEntry *entry = malloc(sizeof(HashEntry));
+    entry->key = malloc(key_size);
+    entry->value = malloc(value_size);
+
+    memcpy(entry->key, key, key_size);
+    memcpy(entry->value, value, value_size);
+
+    return entry;
+}
 
 HashTable* newHash(size_t key_size, size_t value_size,
                    unsigned int (*hash_function)(const void *key, size_t key_size),
@@ -26,28 +99,4 @@ void free_table(HashTable *table) {
 
     free(table->entries);
     free(table);
-}
-
-static bool HashExpand(HashTable *table){
-    size_t new_capacity = table->capacity * 2;
-    if (new_capacity < table->capacity)
-        return false;
-
-    HashEntry *new_entries = calloc(new_capacity, sizeof(HashEntry));
-    if (new_entries == NULL)
-        return false;
-
-    for (size_t i = 0; i < table->capacity; i++) {
-        HashEntry *entry = table->entries[i];
-        if (entry.key != NULL) {
-            ht_set_entry(new_entries, new_capacity, entry.key,
-                         entry.value, NULL);
-        }
-    }
-
-    // Free old entries array and update this table's details.
-    free(table->entries);
-    table->entries = new_entries;
-    table->capacity = new_capacity;
-    return true;
 }
