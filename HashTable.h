@@ -65,7 +65,7 @@ void free_table(HashTable *table);
  * @param value Pointer to the value.
  * @return true if the insertion was successful, false otherwise.
  */
-bool insert(HashTable *table, const void *key, const void *value);
+bool HTinsert(HashTable *table, const void *key, const void *value);
 
 /**
  * @brief Searches for a key in the hash table.

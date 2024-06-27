@@ -2,29 +2,29 @@
 #include <stdlib.h>
 #include <memory.h>
 
-static bool HashExpand(HashTable *table){
-    size_t new_capacity = table->capacity * 2;
-    if (new_capacity < table->capacity)
-        return false;
-
-    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry));
-    if (new_entries == NULL)
-        return false;
-
-    for (size_t i = 0; i < table->capacity; i++) {
-        HashEntry *entry = table->entries[i];
-        if (entry->key != NULL) {
-            ht_set_entry(new_entries, new_capacity, entry->key,
-                         entry->value, NULL);
-        }
-    }
-
-    // Free old entries array and update this table's details.
-    free(table->entries);
-    table->entries = new_entries;
-    table->capacity = new_capacity;
-    return true;
-}
+//static bool HashExpand(HashTable *table){
+//    size_t new_capacity = table->capacity * 2;
+//    if (new_capacity < table->capacity)
+//        return false;
+//
+//    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry));
+//    if (new_entries == NULL)
+//        return false;
+//
+//    for (size_t i = 0; i < table->capacity; i++) {
+//        HashEntry *entry = table->entries[i];
+//        if (entry->key != NULL) {
+//            ht_set_entry(new_entries, new_capacity, entry->key,
+//                         entry->value, NULL);
+//        }
+//    }
+//
+//    // Free old entries array and update this table's details.
+//    free(table->entries);
+//    table->entries = new_entries;
+//    table->capacity = new_capacity;
+//    return true;
+//}
 
 /**
  * @brief Default hash function to calculate the index for a given key.
@@ -99,4 +99,43 @@ void free_table(HashTable *table) {
 
     free(table->entries);
     free(table);
+}
+
+bool HTinsert(HashTable *table, const void *key, const void *value) {
+    unsigned int slot = table->hash_function(key, table->key_size);
+
+    if (table->entries[slot] != NULL) {
+        if (table->key_compare(table->entries[slot]->key, key, table->key_size) == 0) {
+            memcpy(table->entries[slot]->value, value, table->value_size);
+            return true;
+        } else
+            return false;
+    }
+
+    table->entries[slot] = create_entry(key, value, table->key_size, table->value_size);
+    return true;
+}
+
+void *search(HashTable *table, const void *key) {
+    unsigned int slot = table->hash_function(key, table->key_size);
+
+    if (table->entries[slot] != NULL && table->key_compare(table->entries[slot]->key, key, table->key_size) == 0)
+        return table->entries[slot]->value;
+
+
+    return NULL;
+}
+
+bool delete(HashTable *table, const void *key) {
+    unsigned int slot = table->hash_function(key, table->key_size);
+
+    if (table->entries[slot] != NULL && table->key_compare(table->entries[slot]->key, key, table->key_size) == 0) {
+        free(table->entries[slot]->key);
+        free(table->entries[slot]->value);
+        free(table->entries[slot]);
+        table->entries[slot] = NULL;
+        return true;
+    }
+
+    return false;
 }
