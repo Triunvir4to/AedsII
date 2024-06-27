@@ -8,7 +8,7 @@ HashTableIterator newHTIterator(HashTable * table) {
 }
 
 bool nextHTI(HashTableIterator *it){
-    HashTable * table = it->_table;
+    HashTable *table = it->_table;
     while (it->_index < table->capacity) {
         size_t i = it->_index;
         it->_index++;
