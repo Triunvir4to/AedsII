@@ -21,13 +21,25 @@ typedef struct {
     size_t _index;    /**< **PRIVATE field Don't use** Current index into the hash table entries */
 } HashTableIterator;
 
-// Return new hash table iterator (for use with ht_next).
-HashTableIterator ht_iterator(HashTable * table);
+/**
+ * @brief Creates a new hash table iterator.
+ *
+ * @param table Pointer to the hash table.
+ * @return Initialized hash table iterator.
+ */
+HashTableIterator newHTIterator(HashTable * table);
 
-// Move iterator to next item in hash table, update iterator's key
-// and value to current item, and return true. If there are no more
-// items, return false. Don't call ht_set during iteration.
-bool ht_next(HashTable *it);
+/**
+ * @brief Moves the iterator to the next item in the hash table.
+ *
+ * Updates the iterator's key and value to the current item.
+ *
+ * @param it Pointer to the hash table iterator.
+ * @return true if the iterator was advanced to the next entry, false if there are no more entries.
+ *
+ * @note Do not call `insert` or `delete` during iteration.
+ */
+bool nextHTI(HashTableIterator *it);
 
 
 #endif //AEDSII_HASHTABLEITERATOR_H
