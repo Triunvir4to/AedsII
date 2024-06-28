@@ -17,7 +17,7 @@ typedef struct {
     void* value;      /**< Pointer to the current value */
 
     // PRIVATE fields -> Don't use these fields directly.
-    const HashTable *_table; /**<  **PRIVATE field Don't use** Reference to the hash table being iterated */
+    HashTable *_table; /**<  **PRIVATE field Don't use** Reference to the hash table being iterated */
     size_t _index;    /**< **PRIVATE field Don't use** Current index into the hash table entries */
 } HashTableIterator;
 

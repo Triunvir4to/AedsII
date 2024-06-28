@@ -1,4 +1,5 @@
 #include "HashTable.h"
+#include "HashTableIterator.h"
 #include <stdio.h>
 
 /**
@@ -54,32 +55,16 @@ int main() {
     int value1 = 10;
     HTinsert(int_table, &key1, &value1);
 
-    int search_key = 5;
-    int *found_value = search(int_table, &search_key);
-    if (found_value)
-        printf("Found value: %d\n", *found_value);
-    else
-        printf("Value not found\n");
+    int key2 = 15;
+    int value2 = 20;
+    HTinsert(int_table, &key2, &value2);
 
+    HashTableIterator iterator = newHTIterator(int_table);
+
+    while (nextHTI(&iterator))
+        printf("Key: %d, Value: %d\n", *(int*)iterator.key, *(int*)iterator.value);
 
     free_table(int_table);
-
-    // Create a hash table for char to int
-    HashTable *char_table = newHash(sizeof(char), sizeof(int), hash_char, compare_char);
-
-    char key2 = 'a';
-    int value2 = 20;
-    HTinsert(char_table, &key2, &value2);
-
-    char search_key2 = 'a';
-    int *found_value2 = search(char_table, &search_key2);
-    if (found_value2)
-        printf("Found value: %d\n", *found_value2);
-    else
-        printf("Value not found\n");
-
-
-    free_table(char_table);
 
     return 0;
 }
