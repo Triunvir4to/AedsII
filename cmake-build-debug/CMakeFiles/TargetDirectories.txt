@@ -1,3 +1,0 @@
-/home/rafa/projetos/aedsII/cmake-build-debug/CMakeFiles/AEDSII.dir
-/home/rafa/projetos/aedsII/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/rafa/projetos/aedsII/cmake-build-debug/CMakeFiles/rebuild_cache.dir
