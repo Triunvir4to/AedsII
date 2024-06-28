@@ -121,7 +121,7 @@ bool HTinsert(HashTable *table, const void *key, const void *value) {
     table->entries[slot] = create_entry(key, value, table->key_size, table->value_size);
     table->length++;
 
-    if ((float)table->length / table->capacity > 0.7)
+    if ((float)table->length / table->capacity > 0.8)
         HashExpand(table);
 
     return true;
