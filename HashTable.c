@@ -8,12 +8,26 @@
 #define FNV_PRIME 1099511628211UL
 
 /**
- * @brief Prints an allocation failed message, frees the provided memory if not NULL, and exits the program.
+ * @brief Prints an allocation failed message and exits the program.
  *
  */
 static void allocation_failed() {
     fprintf(stderr, "Memory allocation failed.\n");
     exit(-1);
+}
+
+/**
+ * @brief Allocates memory and returns the pointer to the allocated memory.
+ *
+ * @param size Size of the memory block to be allocated.
+ * @return Pointer to the allocated memory.
+ */
+static void* allocateMemory(size_t size) {
+    void *ptr = malloc(size);
+    if (!ptr)
+        allocation_failed();
+
+    return ptr;
 }
 
 /**
@@ -54,19 +68,10 @@ static int default_key_compare(const void *key1, const void *key2, size_t key_si
  * @return Pointer to the created hash entry.
  */
 static HashEntry* create_entry(const void *key, const void *value, size_t key_size, size_t value_size) {
-    HashEntry *entry = (HashEntry*)malloc(sizeof(HashEntry));
-    if (!entry)
-        allocation_failed();
+    HashEntry *entry = allocateMemory(sizeof(HashEntry));
 
-    entry->key = malloc(key_size);
-    if (!entry->key)
-        allocation_failed();
-
-
-    entry->value = malloc(value_size);
-    if (!entry->value)
-        allocation_failed();
-
+    entry->key = allocateMemory(key_size);
+    entry->value = allocateMemory(value_size);
 
     memcpy(entry->key, key, key_size);
     memcpy(entry->value, value, value_size);
@@ -114,8 +119,8 @@ bool HashExpand(HashTable *table){
 HashTable* newHash(size_t key_size, size_t value_size,
                    unsigned int (*hash_function)(const void *key, size_t key_size),
                    int (*key_compare)(const void *key1, const void *key2, size_t key_size)){
-    HashTable *table = malloc(sizeof(HashTable));
-    table->entries = calloc(INITIAL_TABLE_SIZE, sizeof(HashEntry*));
+    HashTable *table = allocateMemory(sizeof(HashTable));
+    table->entries = allocateMemory(INITIAL_TABLE_SIZE * sizeof(HashEntry*));
     table->key_size = key_size;
     table->value_size = value_size;
     table->hash_function = hash_function ? hash_function : default_hash_function;
