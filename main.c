@@ -2,24 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "HTFacilities.h"
+#include "HashTable.h"
+#include "HashTableIterator.h"
 
 // Definição da estrutura para armazenar os dados do filme
-typedef struct {
-    char *movie_id;
-    char *movie_name;
-    int year;
-    char *certificate;
-    int run_time;
-    char *genre;
-    float rating;
-    char *description;
-    char *director;
-    char *director_id;
-    char *star;
-    char *star_id;
-    float gross;
-    int votes;
-} Movie;
 
 // Função para remover aspas duplas de uma string
 void remove_quotes(char* field) {
@@ -215,7 +202,6 @@ Movie* sequential_search(Movie* movies, int size, const char* movie_id, int* acc
 void pause_console() {
     printf("Pressione Enter para continuar...");
     getchar();
-    getchar();  // Lê duas vezes para consumir o \n deixado pelo scanf
 }
 
 // Função para liberar a memória alocada
@@ -235,7 +221,7 @@ void free_movies(Movie* movies, int size) {
 }
 
 // Função para exibir a interface de console
-void console_interface() {
+bool console_interface() {
     char input[10];
     int option;
     char filename[150];
@@ -266,7 +252,7 @@ void console_interface() {
 
     if (endptr == input || *endptr != '\n' || errno == ERANGE) {
         printf("Opção inválida.\n");
-        return;
+        return true;
     }
 
     switch (option) {
@@ -320,10 +306,10 @@ void console_interface() {
             break;
         case 17:
             printf("Saindo...\n");
-            return;
+            return false;
         default:
             printf("Opção inválida.\n");
-            return;
+            return true;
     }
 
     char full_path[200];
@@ -334,44 +320,49 @@ void console_interface() {
     if (!movies) {
         printf("Erro ao carregar os filmes.\n");
         pause_console();
-        return;
+        return true;
     }
+    HashTable *hashMovies = newHash(sizeof(char *), sizeof(Movie),
+                                    hash_string, compare_string);
 
-    char movie_id[20];
-    printf("Digite o ID do filme para buscar: ");
-    scanf("%s", movie_id);
+    for(int i = 0; i < size; ++i)
+        HTinsert(hashMovies, movies[i].movie_id, &movies[i]);
 
-    int access_count;
-    Movie* result = sequential_search(movies, size, movie_id, &access_count);
+    //DEBUG
+//    HashTableIterator iterator = newHTIterator(hashMovies);
+//
+//    while (nextHTI(&iterator)) {
+//        Movie *movie = (Movie *)iterator.value;
+//        print_movie(movie);
+//    }
+
+    char *movie_id;
+    size_t buffer_size = 0;
+    printf("\n\n\nDigite o ID do filme para buscar: ");
+    getline(&movie_id, &buffer_size, stdin);
+
+    int linear_access_count, hash_access_count;
+    Movie *result = (Movie *)search(hashMovies, movie_id);//sequential_search(movies, size, movie_id, &linear_access_count);
 
     if (result) {
-        printf("Filme encontrado:\n");
-        printf("ID: %s\n", result->movie_id);
-        printf("Nome: %s\n", result->movie_name);
-        printf("Ano: %d\n", result->year);
-        printf("Certificado: %s\n", result->certificate);
-        printf("Duração: %d min\n", result->run_time);
-        printf("Gênero: %s\n", result->genre);
-        printf("Nota: %.1f\n", result->rating);
-        printf("Descrição: %s\n", result->description);
-        printf("Diretor: %s\n", result->director);
-        printf("ID do Diretor: %s\n", result->director_id);
-        printf("Estrela: %s\n", result->star);
-        printf("ID da Estrela: %s\n", result->star_id);
-        printf("Votos: %d\n", result->votes);
-        printf("Bilheteria: %.2f\n", result->gross);
-        printf("Acessos: %d\n", access_count);
-    } else {
+//        print_movie(result);
+        printf("Acessos Lineares: %d\n", linear_access_count);
+        printf("Acessos Hashing: %d\n", hash_access_count);
+    } else
         printf("Filme não encontrado.\n");
-    }
+
 
     free_movies(movies, size);
+    free_table(hashMovies);
+    free(movie_id);
     pause_console();
+    return true;
 }
 
 int main() {
-    while (1) {
-        console_interface();
+    bool isRunning = true;
+    while (isRunning) {
+        isRunning = console_interface();
     }
     return 0;
 }

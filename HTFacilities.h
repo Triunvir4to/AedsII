@@ -63,4 +63,6 @@ int compare_char(const void *key1, const void *key2, size_t key_size);
  */
 int compare_string(const void *key1, const void *key2, size_t key_size);
 
+void debug();
+
 #endif //AEDSII_HTFACILITIES_H

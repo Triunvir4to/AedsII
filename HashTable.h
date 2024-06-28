@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /**
  * @brief Initial size of the hash table.
@@ -34,8 +35,25 @@ typedef struct {
     unsigned int (*hash_function)(const void *key, size_t key_size); /**< Just must transform datatype in int Pointer to the hash function */
     int (*key_compare)(const void *key1, const void *key2, size_t key_size); /**< Pointer to the key comparison function */
     size_t capacity;    /**< size of _entries array */
-    size_t length;      /**< number of items in hash table/**< Size of the hash table */
+    size_t length;      /**< number of items in hash table  */
 } HashTable;
+
+typedef struct {
+    char *movie_id;
+    char *movie_name;
+    int year;
+    char *certificate;
+    int run_time;
+    char *genre;
+    float rating;
+    char *description;
+    char *director;
+    char *director_id;
+    char *star;
+    char *star_id;
+    float gross;
+    int votes;
+} Movie;
 
 /**
  * @brief Creates a new hash table.
@@ -57,6 +75,8 @@ HashTable* newHash(size_t key_size, size_t value_size,
  */
 void free_table(HashTable *table);
 
+void free_entries(HashEntry **entries, size_t capacity);
+
 /**
  * @brief Inserts a key-value pair into the hash table.
  *
@@ -65,7 +85,7 @@ void free_table(HashTable *table);
  * @param value Pointer to the value.
  * @return true if the insertion was successful, false otherwise.
  */
-bool HTinsert(HashTable *table, const void *key, const void *value);
+bool HTinsert(HashTable *table, void *key, void *value);
 
 /**
  * @brief Searches for a key in the hash table.
@@ -85,50 +105,5 @@ void* search(HashTable *table, const void *key);
  */
 bool delete(HashTable *table, const void *key);
 
-/**
- * @brief Resizes the hash table.
- *
- * @param table Pointer to the hash table.
- * @param new_size New size for the hash table.
- * @return true if the resize was successful, false otherwise.
- */
-bool resize_table(HashTable *table, size_t new_size);
 
-/**
- * @brief Example hash function for integers.
- *
- * @param key Pointer to the key.
- * @param key_size Size of the key.
- * @return Hash value.
- */
-unsigned int hash_int(const void *key, size_t key_size);
-
-/**
- * @brief Example hash function for characters.
- *
- * @param key Pointer to the key.
- * @param key_size Size of the key.
- * @return Hash value.
- */
-unsigned int hash_char(const void *key, size_t key_size);
-
-/**
- * @brief Example key comparison function for integers.
- *
- * @param key1 Pointer to the first key.
- * @param key2 Pointer to the second key.
- * @param key_size Size of the keys.
- * @return Comparison result.
- */
-int compare_int(const void *key1, const void *key2, size_t key_size);
-
-/**
- * @brief Example key comparison function for characters.
- *
- * @param key1 Pointer to the first key.
- * @param key2 Pointer to the second key.
- * @param key_size Size of the keys.
- * @return Comparison result.
- */
-int compare_char(const void *key1, const void *key2, size_t key_size);
 #endif //AEDSII_HASHTABLE_H
