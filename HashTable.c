@@ -10,12 +10,8 @@
 /**
  * @brief Prints an allocation failed message, frees the provided memory if not NULL, and exits the program.
  *
- * @param element Pointer to the memory block to be freed if allocation failed.
  */
-static void allocation_failed(void *element) {
-    if (element) {
-        free(element);
-    }
+static void allocation_failed() {
     fprintf(stderr, "Memory allocation failed.\n");
     exit(-1);
 }
@@ -58,9 +54,19 @@ static int default_key_compare(const void *key1, const void *key2, size_t key_si
  * @return Pointer to the created hash entry.
  */
 static HashEntry* create_entry(const void *key, const void *value, size_t key_size, size_t value_size) {
-    HashEntry *entry = malloc(sizeof(HashEntry));
+    HashEntry *entry = (HashEntry*)malloc(sizeof(HashEntry));
+    if (!entry)
+        allocation_failed();
+
     entry->key = malloc(key_size);
+    if (!entry->key)
+        allocation_failed();
+
+
     entry->value = malloc(value_size);
+    if (!entry->value)
+        allocation_failed();
+
 
     memcpy(entry->key, key, key_size);
     memcpy(entry->value, value, value_size);
