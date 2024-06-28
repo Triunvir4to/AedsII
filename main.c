@@ -51,18 +51,15 @@ int compare_char(const void *key1, const void *key2, size_t key_size) {
 int main() {
     HashTable *int_table = newHash(sizeof(int), sizeof(int), hash_int, compare_int);
 
-    int key1 = 5;
-    int value1 = 10;
-    HTinsert(int_table, &key1, &value1);
-
-    int key2 = 15;
-    int value2 = 20;
-    HTinsert(int_table, &key2, &value2);
+    for (int i = 0; i < 100000; ++i) {
+        HTinsert(int_table, &i, &i);
+    }
 
     HashTableIterator iterator = newHTIterator(int_table);
 
-    while (nextHTI(&iterator))
+    while (nextHTI(&iterator)) {
         printf("Key: %d, Value: %d\n", *(int*)iterator.key, *(int*)iterator.value);
+    }
 
     free_table(int_table);
 

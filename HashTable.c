@@ -96,7 +96,7 @@ bool HashExpand(HashTable *table){
     if (new_capacity < table->capacity)
         return false;
 
-    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry*));
+    HashEntry **new_entries = allocateMemory(new_capacity * sizeof(HashEntry*));
     if (new_entries == NULL)
         return false;
 
