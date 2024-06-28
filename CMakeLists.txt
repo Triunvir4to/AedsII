@@ -8,6 +8,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_executable(AEDSII
         HashTable.c
+        HTFacilities.c
         HashTableIterator.c
         main.c
 )

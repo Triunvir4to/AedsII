@@ -1,70 +1,28 @@
 #include "HashTable.h"
 #include "HashTableIterator.h"
+#include "HTFacilities.h"
 #include <stdio.h>
+#include <string.h>
 
-/**
- * @brief Example hash function for integers.
- *
- * @param key Pointer to the key.
- * @param key_size Size of the key.
- * @return Hash value.
- */
-unsigned int hash_int(const void *key, size_t key_size) {
-    return (*(int*)key);
-}
-
-/**
- * @brief Example hash function for characters.
- *
- * @param key Pointer to the key.
- * @param key_size Size of the key.
- * @return Hash value.
- */
-unsigned int hash_char(const void *key, size_t key_size) {
-    return (*(char*)key);
-}
-
-/**
- * @brief Example key comparison function for integers.
- *
- * @param key1 Pointer to the first key.
- * @param key2 Pointer to the second key.
- * @param key_size Size of the keys.
- * @return Comparison result.
- */
-int compare_int(const void *key1, const void *key2, size_t key_size) {
-    return (*(int*)key1) - (*(int*)key2);
-}
-
-/**
- * @brief Example key comparison function for characters.
- *
- * @param key1 Pointer to the first key.
- * @param key2 Pointer to the second key.
- * @param key_size Size of the keys.
- * @return Comparison result.
- */
-int compare_char(const void *key1, const void *key2, size_t key_size) {
-    return (*(char*)key1) - (*(char*)key2);
-}
 
 int main() {
-    HashTable *char_table = newHash(sizeof(char), sizeof(int), hash_char, compare_char);
+    HashTable *string_table = newHash(sizeof(char*), sizeof(int), hash_string, compare_string);
 
-    for (char c = 'a'; c <= 'z'; ++c) {
-        int value = c - 'a' + 1; // Just a sample value
-        HTinsert(char_table, &c, &value);
+    const char *keys[] = {"apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew"};
+    int values[] = {1, 2, 3, 4, 5, 6, 7, 8};
+
+    for (int i = 0; i < 8; ++i) {
+        HTinsert(string_table, keys[i], &values[i]);
     }
 
-    HashTableIterator iterator = newHTIterator(char_table);
+    HashTableIterator iterator = newHTIterator(string_table);
 
     while (nextHTI(&iterator))
-        printf("Key: %c, Value: %d\n", *(char*)iterator.key, *(int*)iterator.value);
+        printf("Key: %s, Value: %d\n", (char*)iterator.key, *(int*)iterator.value);
 
+    printf("\ntable size: %zu\n", string_table->capacity);
 
-    printf("\ntable size: %zu\n", char_table->capacity);
-
-    free_table(char_table);
+    free_table(string_table);
 
     return 0;
 }
