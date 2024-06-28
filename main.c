@@ -10,7 +10,7 @@
  * @return Hash value.
  */
 unsigned int hash_int(const void *key, size_t key_size) {
-    return (*(int*)key) % INITIAL_TABLE_SIZE;
+    return (*(int*)key);
 }
 
 /**
@@ -21,7 +21,7 @@ unsigned int hash_int(const void *key, size_t key_size) {
  * @return Hash value.
  */
 unsigned int hash_char(const void *key, size_t key_size) {
-    return (*(char*)key) % INITIAL_TABLE_SIZE;
+    return (*(char*)key);
 }
 
 /**

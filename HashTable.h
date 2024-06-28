@@ -14,7 +14,7 @@
 /**
  * @brief Initial size of the hash table.
  */
-#define INITIAL_TABLE_SIZE 100
+#define INITIAL_TABLE_SIZE 16
 
 /**
  * @brief Structure for a hash table entry.
@@ -31,7 +31,7 @@ typedef struct {
     HashEntry **entries;                                         /**< Array of pointers to hash entries */
     size_t key_size;                                             /**< Size of the key */
     size_t value_size;                                           /**< Size of the value */
-    unsigned int (*hash_function)(const void *key, size_t key_size); /**< Pointer to the hash function */
+    unsigned int (*hash_function)(const void *key, size_t key_size); /**< Just must transform datatype in int Pointer to the hash function */
     int (*key_compare)(const void *key1, const void *key2, size_t key_size); /**< Pointer to the key comparison function */
     size_t capacity;    /**< size of _entries array */
     size_t length;      /**< number of items in hash table/**< Size of the hash table */

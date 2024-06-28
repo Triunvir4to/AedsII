@@ -1,30 +1,23 @@
 #include "HashTable.h"
 #include <stdlib.h>
 #include <memory.h>
+#include <stdint-gcc.h>
+#include <stdio.h>
 
-static bool HashExpand(HashTable *table){
-    size_t new_capacity = table->capacity * 2;
-    if (new_capacity < table->capacity)
-        return false;
+#define FNV_OFFSET 14695981039346656037UL
+#define FNV_PRIME 1099511628211UL
 
-    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry*));
-    if (new_entries == NULL)
-        return false;
-
-    // Rehash all existing entries into the new table
-    for (size_t i = 0; i < table->capacity; i++) {
-        HashEntry *entry = table->entries[i];
-        if (entry != NULL && entry->key != NULL) {
-            unsigned int new_slot = table->hash_function(entry->key, table->key_size) % new_capacity;
-            new_entries[new_slot] = entry;
-        }
+/**
+ * @brief Prints an allocation failed message, frees the provided memory if not NULL, and exits the program.
+ *
+ * @param element Pointer to the memory block to be freed if allocation failed.
+ */
+static void allocation_failed(void *element) {
+    if (element) {
+        free(element);
     }
-
-    // Free old entries array and update the table's details
-    free(table->entries);
-    table->entries = new_entries;
-    table->capacity = new_capacity;
-    return true;
+    fprintf(stderr, "Memory allocation failed.\n");
+    exit(-1);
 }
 
 /**
@@ -37,10 +30,10 @@ static bool HashExpand(HashTable *table){
 static unsigned int default_hash_function(const void *key, size_t key_size) {
     const unsigned char *ptr = key;
     unsigned long int value = 0;
-    for (size_t i = 0; i < key_size; ++i) {
+    for (size_t i = 0; i < key_size; ++i)
         value = value * 37 + ptr[i];
-    }
-    return value % INITIAL_TABLE_SIZE;
+
+    return value;
 }
 
 /**
@@ -75,6 +68,43 @@ static HashEntry* create_entry(const void *key, const void *value, size_t key_si
     return entry;
 }
 
+size_t hash_function_wraper(HashTable *table, const void *key, size_t key_size){
+    const uint64_t* bytes = (const uint64_t*) key;
+    uint64_t hash = FNV_OFFSET;
+
+    for (size_t i = 0; i < key_size; i++) {
+        hash ^= bytes[i];
+        hash *= FNV_PRIME;
+    }
+
+    return (size_t)(hash & (uint64_t)(table->capacity - 1));
+}
+
+bool HashExpand(HashTable *table){
+    size_t new_capacity = table->capacity * 2;
+    if (new_capacity < table->capacity)
+        return false;
+
+    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry*));
+    if (new_entries == NULL)
+        return false;
+
+    // Rehash all existing entries into the new table
+    for (size_t i = 0; i < table->capacity; i++) {
+        HashEntry *entry = table->entries[i];
+        if (entry != NULL && entry->key != NULL) {
+            size_t new_slot = hash_function_wraper(table, entry->key, table->key_size);
+            new_entries[new_slot] = entry;
+        }
+    }
+
+    // Free old entries array and update the table's details
+    free(table->entries);
+    table->entries = new_entries;
+    table->capacity = new_capacity;
+    return true;
+}
+
 HashTable* newHash(size_t key_size, size_t value_size,
                    unsigned int (*hash_function)(const void *key, size_t key_size),
                    int (*key_compare)(const void *key1, const void *key2, size_t key_size)){
@@ -104,7 +134,7 @@ void free_table(HashTable *table) {
 }
 
 bool HTinsert(HashTable *table, const void *key, const void *value) {
-    unsigned int slot = table->hash_function(key, table->key_size) % table->capacity;
+    size_t slot = hash_function_wraper(table, key, table->key_size);
     unsigned int original_slot = slot;
 
     while (table->entries[slot] != NULL) {
@@ -114,8 +144,11 @@ bool HTinsert(HashTable *table, const void *key, const void *value) {
         }
 
         slot = (slot + 1) % table->capacity;
-        if (slot == original_slot)
-            return false;
+        if (slot == original_slot){
+            HashExpand(table);
+            slot = hash_function_wraper(table, key, table->key_size);
+            original_slot = slot;
+        }
     }
 
     table->entries[slot] = create_entry(key, value, table->key_size, table->value_size);
@@ -128,7 +161,7 @@ bool HTinsert(HashTable *table, const void *key, const void *value) {
 }
 
 void *search(HashTable *table, const void *key) {
-    unsigned int slot = table->hash_function(key, table->key_size);
+    size_t slot = hash_function_wraper(table, key, table->key_size);
 
     if (table->entries[slot] != NULL && table->key_compare(table->entries[slot]->key, key, table->key_size) == 0)
         return table->entries[slot]->value;
@@ -138,7 +171,7 @@ void *search(HashTable *table, const void *key) {
 }
 
 bool delete(HashTable *table, const void *key) {
-    unsigned int slot = table->hash_function(key, table->key_size);
+    size_t slot = hash_function_wraper(table, key, table->key_size);
 
     if (table->entries[slot] != NULL && table->key_compare(table->entries[slot]->key, key, table->key_size) == 0) {
         free(table->entries[slot]->key);
