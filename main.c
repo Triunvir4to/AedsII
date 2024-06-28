@@ -49,19 +49,22 @@ int compare_char(const void *key1, const void *key2, size_t key_size) {
 }
 
 int main() {
-    HashTable *int_table = newHash(sizeof(int), sizeof(int), hash_int, compare_int);
+    HashTable *char_table = newHash(sizeof(char), sizeof(int), hash_char, compare_char);
 
-    for (int i = 0; i < 100000; ++i) {
-        HTinsert(int_table, &i, &i);
+    for (char c = 'a'; c <= 'z'; ++c) {
+        int value = c - 'a' + 1; // Just a sample value
+        HTinsert(char_table, &c, &value);
     }
 
-    HashTableIterator iterator = newHTIterator(int_table);
+    HashTableIterator iterator = newHTIterator(char_table);
 
-    while (nextHTI(&iterator)) {
-        printf("Key: %d, Value: %d\n", *(int*)iterator.key, *(int*)iterator.value);
-    }
+    while (nextHTI(&iterator))
+        printf("Key: %c, Value: %d\n", *(char*)iterator.key, *(int*)iterator.value);
 
-    free_table(int_table);
+
+    printf("\ntable size: %zu\n", char_table->capacity);
+
+    free_table(char_table);
 
     return 0;
 }
