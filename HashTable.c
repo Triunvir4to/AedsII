@@ -2,29 +2,30 @@
 #include <stdlib.h>
 #include <memory.h>
 
-//static bool HashExpand(HashTable *table){
-//    size_t new_capacity = table->capacity * 2;
-//    if (new_capacity < table->capacity)
-//        return false;
-//
-//    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry));
-//    if (new_entries == NULL)
-//        return false;
-//
-//    for (size_t i = 0; i < table->capacity; i++) {
-//        HashEntry *entry = table->entries[i];
-//        if (entry->key != NULL) {
-//            ht_set_entry(new_entries, new_capacity, entry->key,
-//                         entry->value, NULL);
-//        }
-//    }
-//
-//    // Free old entries array and update this table's details.
-//    free(table->entries);
-//    table->entries = new_entries;
-//    table->capacity = new_capacity;
-//    return true;
-//}
+static bool HashExpand(HashTable *table){
+    size_t new_capacity = table->capacity * 2;
+    if (new_capacity < table->capacity)
+        return false;
+
+    HashEntry **new_entries = calloc(new_capacity, sizeof(HashEntry*));
+    if (new_entries == NULL)
+        return false;
+
+    // Rehash all existing entries into the new table
+    for (size_t i = 0; i < table->capacity; i++) {
+        HashEntry *entry = table->entries[i];
+        if (entry != NULL && entry->key != NULL) {
+            unsigned int new_slot = table->hash_function(entry->key, table->key_size) % new_capacity;
+            new_entries[new_slot] = entry;
+        }
+    }
+
+    // Free old entries array and update the table's details
+    free(table->entries);
+    table->entries = new_entries;
+    table->capacity = new_capacity;
+    return true;
+}
 
 /**
  * @brief Default hash function to calculate the index for a given key.
@@ -84,6 +85,7 @@ HashTable* newHash(size_t key_size, size_t value_size,
     table->hash_function = hash_function ? hash_function : default_hash_function;
     table->key_compare = key_compare ? key_compare : default_key_compare;
     table->capacity = INITIAL_TABLE_SIZE;
+    table->length = 0;
 
     return table;
 }
@@ -102,17 +104,26 @@ void free_table(HashTable *table) {
 }
 
 bool HTinsert(HashTable *table, const void *key, const void *value) {
-    unsigned int slot = table->hash_function(key, table->key_size);
+    unsigned int slot = table->hash_function(key, table->key_size) % table->capacity;
+    unsigned int original_slot = slot;
 
-    if (table->entries[slot] != NULL) {
+    while (table->entries[slot] != NULL) {
         if (table->key_compare(table->entries[slot]->key, key, table->key_size) == 0) {
             memcpy(table->entries[slot]->value, value, table->value_size);
             return true;
-        } else
+        }
+
+        slot = (slot + 1) % table->capacity;
+        if (slot == original_slot)
             return false;
     }
 
     table->entries[slot] = create_entry(key, value, table->key_size, table->value_size);
+    table->length++;
+
+    if ((float)table->length / table->capacity > 0.7)
+        HashExpand(table);
+
     return true;
 }
 
