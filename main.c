@@ -2,8 +2,6 @@
 #include "HashTableIterator.h"
 #include "HTFacilities.h"
 #include <stdio.h>
-#include <string.h>
-
 
 int main() {
     HashTable *string_table = newHash(sizeof(char*), sizeof(int), hash_string, compare_string);
