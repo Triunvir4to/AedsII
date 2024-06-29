@@ -41,16 +41,5 @@ HashTableIterator newHTIterator(HashTable * table);
  */
 bool nextHTI(HashTableIterator *it);
 
-/**
- * @brief Frees resources associated with a hash table iterator.
- *
- * This function should be called when an iterator is no longer needed.
- * It does not free the hash table itself or any of its entries, as the
- * iterator does not own them.
- *
- * @param it Pointer to the hash table iterator.
- */
-void freeHTIterator(HashTableIterator *it);
-
 
 #endif //AEDSII_HASHTABLEITERATOR_H
