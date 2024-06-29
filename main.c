@@ -363,11 +363,12 @@ bool console_interface() {
         HTSet(hashMovies, movies[i].movie_id, &movies[i]);
 
     //DEBUG
-    HashTableIterator iterator = newHTIterator(hashMovies);
-
-    nextHTI(&iterator);
-    Movie *movie = (Movie *)iterator.value;
-    print_movie(movie);
+//    HashTableIterator iterator = newHTIterator(hashMovies);
+//
+//    while(nextHTI(&iterator)){
+//        Movie *movie = (Movie *)iterator.value;
+//        printf("%s ", movie->movie_id);
+//    }
 
 
     char *movie_id;
