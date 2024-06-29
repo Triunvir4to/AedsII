@@ -391,6 +391,7 @@ bool console_interface() {
     free_movies(movies, size);
     free_table(hashMovies);
     free(movie_id);
+    freeHTIterator(&iterator);
     pause_console();
     return true;
 }

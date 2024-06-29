@@ -22,3 +22,14 @@ bool nextHTI(HashTableIterator *it) {
     }
     return false;
 }
+
+void freeHTIterator(HashTableIterator *it) {
+    if (it) {
+        it->key = NULL;
+        it->value = NULL;
+        it->_table = NULL;
+        it->_index = 0;
+
+        free(it);
+    }
+}
