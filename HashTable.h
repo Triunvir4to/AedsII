@@ -21,7 +21,7 @@
  * @brief Structure for a hash table entry.
  */
 typedef struct {
-    void *key;   /**< Pointer to the key */
+    const char *key;   /**< Pointer to the key */
     void *value; /**< Pointer to the value */
 } HashEntry;
 
@@ -29,31 +29,11 @@ typedef struct {
  * @brief Structure for the hash table.
  */
 typedef struct {
-    HashEntry **entries;                                         /**< Array of pointers to hash entries */
-    size_t key_size;                                             /**< Size of the key */
-    size_t value_size;                                           /**< Size of the value */
-    unsigned int (*hash_function)(const void *key, size_t key_size); /**< Just must transform datatype in int Pointer to the hash function */
-    int (*key_compare)(const void *key1, const void *key2, size_t key_size); /**< Pointer to the key comparison function */
+    HashEntry **entries; /**< Array of pointers to hash entries */
+
     size_t capacity;    /**< size of _entries array */
     size_t length;      /**< number of items in hash table  */
 } HashTable;
-
-typedef struct {
-    char *movie_id;
-    char *movie_name;
-    int year;
-    char *certificate;
-    int run_time;
-    char *genre;
-    float rating;
-    char *description;
-    char *director;
-    char *director_id;
-    char *star;
-    char *star_id;
-    float gross;
-    int votes;
-} Movie;
 
 /**
  * @brief Creates a new hash table.
@@ -64,9 +44,7 @@ typedef struct {
  * @param key_compare Pointer to the key comparison function.
  * @return Pointer to the created hash table.
  */
-HashTable* newHash(size_t key_size, size_t value_size,
-                        unsigned int (*hash_function)(const void *key, size_t key_size),
-                        int (*key_compare)(const void *key1, const void *key2, size_t key_size));
+HashTable* newHash();
 
 /**
  * @brief Frees the memory allocated for the hash table.
@@ -85,7 +63,7 @@ void free_entries(HashEntry **entries, size_t capacity);
  * @param value Pointer to the value.
  * @return true if the insertion was successful, false otherwise.
  */
-bool HTinsert(HashTable *table, void *key, void *value);
+bool HTSet(HashTable *table, const char *key, void *value);
 
 /**
  * @brief Searches for a key in the hash table.
@@ -94,7 +72,7 @@ bool HTinsert(HashTable *table, void *key, void *value);
  * @param key Pointer to the key.
  * @return Pointer to the value if the key is found, NULL otherwise.
  */
-void* search(HashTable *table, const void *key);
+void *HTget(HashTable *table, const char *key, int *access_count);
 
 /**
  * @brief Deletes a key-value pair from the hash table.

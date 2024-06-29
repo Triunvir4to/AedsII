@@ -1,1 +1,0 @@
-/usr/bin/cc -g CMakeFiles/AEDSII.dir/HashTable.c.o CMakeFiles/AEDSII.dir/HTFacilities.c.o CMakeFiles/AEDSII.dir/HashTableIterator.c.o CMakeFiles/AEDSII.dir/main.c.o -o AEDSII 

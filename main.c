@@ -8,6 +8,23 @@
 
 // Definição da estrutura para armazenar os dados do filme
 
+typedef struct {
+    char *movie_id;
+    char *movie_name;
+    int year;
+    char *certificate;
+    int run_time;
+    char *genre;
+    float rating;
+    char *description;
+    char *director;
+    char *director_id;
+    char *star;
+    char *star_id;
+    float gross;
+    int votes;
+} Movie;
+
 // Função para remover aspas duplas de uma string
 void remove_quotes(char* field) {
     int length = strlen(field);
@@ -94,6 +111,23 @@ char* get_csv_field(char* line, int* pos, FILE* file) {
     remove_quotes(field);
 
     return field;
+}
+
+void print_movie(Movie *movie) {
+    printf("Movie ID: %s\n", movie->movie_id);
+    printf("Movie Name: %s\n", movie->movie_name);
+    printf("Year: %d\n", movie->year);
+    printf("Certificate: %s\n", movie->certificate);
+    printf("Run Time: %d\n", movie->run_time);
+    printf("Genre: %s\n", movie->genre);
+    printf("Rating: %.1f\n", movie->rating);
+    printf("Description: %s\n", movie->description);
+    printf("Director: %s\n", movie->director);
+    printf("Director ID: %s\n", movie->director_id);
+    printf("Star: %s\n", movie->star);
+    printf("Star ID: %s\n", movie->star_id);
+    printf("Gross: %.2f\n", movie->gross);
+    printf("Votes: %d\n", movie->votes);
 }
 
 Movie* load_movies(const char* filename, int* size) {
@@ -326,26 +360,28 @@ bool console_interface() {
                                     hash_string, compare_string);
 
     for(int i = 0; i < size; ++i)
-        HTinsert(hashMovies, movies[i].movie_id, &movies[i]);
+        HTSet(hashMovies, movies[i].movie_id, &movies[i]);
 
     //DEBUG
-//    HashTableIterator iterator = newHTIterator(hashMovies);
-//
-//    while (nextHTI(&iterator)) {
-//        Movie *movie = (Movie *)iterator.value;
-//        print_movie(movie);
-//    }
+    HashTableIterator iterator = newHTIterator(hashMovies);
+
+    nextHTI(&iterator);
+    Movie *movie = (Movie *)iterator.value;
+    print_movie(movie);
+
 
     char *movie_id;
     size_t buffer_size = 0;
     printf("\n\n\nDigite o ID do filme para buscar: ");
     getline(&movie_id, &buffer_size, stdin);
+    movie_id[strcspn(movie_id, "\n")] = '\0';
 
     int linear_access_count, hash_access_count;
-    Movie *result = (Movie *)search(hashMovies, movie_id);//sequential_search(movies, size, movie_id, &linear_access_count);
+    Movie *result = (Movie *)HTget(hashMovies, movie_id, &hash_access_count);
+    sequential_search(movies, size, movie_id, &linear_access_count);
 
     if (result) {
-//        print_movie(result);
+        print_movie(result);
         printf("Acessos Lineares: %d\n", linear_access_count);
         printf("Acessos Hashing: %d\n", hash_access_count);
     } else

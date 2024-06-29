@@ -13,7 +13,7 @@
  * This structure allows iteration over the entries of a hash table.
  */
 typedef struct {
-    void* key;  /**< Pointer to the current key */
+    const char *key;  /**< Pointer to the current key */
     void* value;      /**< Pointer to the current value */
 
     // PRIVATE fields -> Don't use these fields directly.
