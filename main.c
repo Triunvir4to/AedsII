@@ -356,8 +356,7 @@ bool console_interface() {
         pause_console();
         return true;
     }
-    HashTable *hashMovies = newHash(sizeof(char *), sizeof(Movie),
-                                    hash_string, compare_string);
+    HashTable *hashMovies = newHash();
 
     for(int i = 0; i < size; ++i)
         HTSet(hashMovies, movies[i].movie_id, &movies[i]);
