@@ -221,7 +221,7 @@ Movie* load_movies(const char* filename, int* size) {
 }
 
 // Função para realizar a pesquisa sequencial
-Movie* sequential_search(Movie* movies, int size, const char* movie_id, int* access_count) {
+Movie* sequential_search_by_id(Movie* movies, int size, const char* movie_id, int* access_count) {
     *access_count = 0;
     for (int i = 0; i < size; i++) {
         (*access_count)++;
@@ -231,6 +231,18 @@ Movie* sequential_search(Movie* movies, int size, const char* movie_id, int* acc
     }
     return NULL;
 }
+
+Movie* sequential_search_by_name(Movie* movies, int size, const char* movie_id, int* access_count) {
+    *access_count = 0;
+    for (int i = 0; i < size; i++) {
+        (*access_count)++;
+        if (strcmp(movies[i].movie_name, movie_id) == 0) {
+            return &movies[i];
+        }
+    }
+    return NULL;
+}
+
 
 // Função para pausar o console
 void pause_console() {
@@ -356,29 +368,66 @@ bool console_interface() {
         pause_console();
         return true;
     }
-    HashTable *hashMovies = newHash();
+    HashTable *hashMoviesById = newHash();
+    HashTable *hashMoviesByName = newHash();
 
-    for(int i = 0; i < size; ++i)
-        HTSet(hashMovies, movies[i].movie_id, &movies[i]);
+    for(int i = 0; i < size; ++i) {
+        HTSet(hashMoviesById, movies[i].movie_id, &movies[i]);
+        HTSet(hashMoviesByName, movies[i].movie_name, &movies[i]);
+    }
 
     //DEBUG
-//    HashTableIterator iterator = newHTIterator(hashMovies);
-//
-//    while(nextHTI(&iterator)){
-//        Movie *movie = (Movie *)iterator.value;
-//        printf("%s ", movie->movie_id);
-//    }
+    HashTableIterator iterator = newHTIterator(hashMoviesByName);
+
+    while(nextHTI(&iterator)){
+        Movie *movie = (Movie *)iterator.value;
+        printf("%s ", movie->movie_name);
+    }
+
+    size_t buffer_size = 0;
+
+    while(true) {
+        printf("\n\nComo você deseja buscar o filme?\n");
+        printf("0 - Por ID\n");
+        printf("1 - Por Nome\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &option);
+        getchar();
+
+        if (option == 0) {
+            printf("Digite o ID do filme para buscar: ");
+            break;
+        } else if (option == 1) {
+            printf("Digite o nome do filme para buscar: ");
+            break;
+        } else
+            printf("Opção inválida.\n");
+    }
 
 
     char *movie_id;
-    size_t buffer_size = 0;
-    printf("\n\n\nDigite o ID do filme para buscar: ");
-    getline(&movie_id, &buffer_size, stdin);
-    movie_id[strcspn(movie_id, "\n")] = '\0';
+
+    Movie *result;
 
     int linear_access_count, hash_access_count;
-    Movie *result = (Movie *)HTget(hashMovies, movie_id, &hash_access_count);
-    sequential_search(movies, size, movie_id, &linear_access_count);
+
+    if(!option){
+        printf("\n\n\nDigite o ID do filme para buscar: ");
+        getline(&movie_id, &buffer_size, stdin);
+        movie_id[strcspn(movie_id, "\n")] = '\0';
+
+        result = (Movie *)HTget(hashMoviesById, movie_id, &hash_access_count);
+        sequential_search_by_id(movies, size, movie_id, &linear_access_count);
+    }else {
+        printf("\n\n\nDigite o NOME do filme para buscar: ");
+        getline(&movie_id, &buffer_size, stdin);
+        movie_id[strcspn(movie_id, "\n")] = '\0';
+
+        printf("%s", movie_id);
+
+        result = (Movie *)HTget(hashMoviesByName, movie_id, &hash_access_count);
+        sequential_search_by_name(movies, size, movie_id, &linear_access_count);
+    }
 
     if (result) {
         print_movie(result);
@@ -389,7 +438,8 @@ bool console_interface() {
 
 
     free_movies(movies, size);
-    free_table(hashMovies);
+    free_table(hashMoviesById);
+    free_table(hashMoviesByName);
     free(movie_id);
     pause_console();
     return true;
